@@ -1,7 +1,60 @@
 # caddyfile-parser
-Caddyfile Syntax https://caddyserver.com/docs/caddyfile
 
-Nginx Conf & DNS corefile & Caddyfile
+A Go library for parsing **Caddyfile**, **DNS Corefile**, and **Nginx** configuration file formats.
+
+- Caddyfile syntax: https://caddyserver.com/docs/caddyfile
+- CoreDNS Corefile syntax: https://coredns.io/manual/toc/#configuration
+
+## Installation
+
+```sh
+go get github.com/pacoxu/caddyfile-parser
+```
+
+## Usage
+
+### Caddyfile / DNS Corefile
+
+```go
+import caddyfileparser "github.com/pacoxu/caddyfile-parser"
+
+f, _ := os.Open("Caddyfile")
+defer f.Close()
+
+blocks, err := caddyfileparser.Parse("Caddyfile", f)
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, block := range blocks {
+    fmt.Println("keys:", block.Keys)
+    for _, seg := range block.Segments {
+        fmt.Printf("  directive: %s args: %v\n", seg.Name, seg.Args)
+    }
+}
+```
+
+### Nginx
+
+```go
+import caddyfileparser "github.com/pacoxu/caddyfile-parser"
+
+f, _ := os.Open("nginx.conf")
+defer f.Close()
+
+cfg, err := caddyfileparser.ParseNginx("nginx.conf", f)
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, d := range cfg {
+    if d.Body != nil {
+        fmt.Printf("block: %s\n", d.Name)
+    } else {
+        fmt.Printf("directive: %s params: %v\n", d.Name, d.Params)
+    }
+}
+```
 
 # Examples
 
